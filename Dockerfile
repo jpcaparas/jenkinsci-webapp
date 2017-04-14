@@ -3,10 +3,9 @@ FROM jenkinsci/jenkins:lts
 LABEL maintainer "jp@jpcaparas.com"
 
 ### Build args ###
-ARG user=jenkins
 ARG mysql_root_password=root
 
-### Run as ROOT while we install packages ###
+### Set user to root. Previously, it was jenkins ###
 USER root
 
 ### Retrieve new lists of packages and update OS ###
@@ -16,6 +15,7 @@ RUN apt-get update -y \
 ### Allows you to easily manage your distribution and independent software vendor software sources. ###
 RUN apt-get install -y software-properties-common
 RUN apt-get install -y curl python-software-properties
+RUN apt-get install -y apt-utils
 
 ### Change sources where we get packages from ###
 RUN echo "deb http://mirrors.linode.com/debian/ jessie main contrib non-free" > /etc/apt/sources.list \
@@ -43,18 +43,15 @@ RUN apt-get install nodejs
 ### Install MariaDB (a fork of MySQL) (non-interactive) ###
 ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt-get install -y debconf-utils
-RUN apt-get install -y chkconfig
 RUN ["/bin/bash", "-c", "echo \"mariadb-server-10.0 mysql-server/root_password password ${mysql_root_password}\" | debconf-set-selections"]
 RUN ["/bin/bash", "-c", "echo \"mariadb-server-10.0 mysql-server/root_password_again password ${mysql_root_password}\" | debconf-set-selections"]
 RUN apt-get install -y mariadb-server-10.0
-RUN service mysql start
-RUN chkconfig mysql on
-
-### Revert to default user ###
-USER ${user}
 
 ### Export port for main web interface ###
 EXPOSE 8080
 
 ### Expose port for slave agents ###
 EXPOSE 50000
+
+### Start MySQL service and have something run in the foreground to prevent the container from stopping ###
+ENTRYPOINT ["/bin/sh", "-c", "service mysql start &> /dev/null && /usr/local/bin/jenkins.sh && tail -f /dev/null"]
