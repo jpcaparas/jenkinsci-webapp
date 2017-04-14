@@ -31,6 +31,11 @@ RUN apt-get install -y php5-fpm php5-cli php5-common php5-curl php5-geoip php5-g
 ### Install Composer (PHP package manager) ###
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+### Install node.js ###
+RUN apt-get install curl python-software-properties
+RUN curl -sL https://deb.nodesource.com/setup_7.x | bash -
+RUN apt-get install nodejs
+
 USER ${user}
 
 # For main web interface:
