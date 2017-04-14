@@ -8,6 +8,9 @@ ARG mysql_root_password=root
 ### Set user to root. Previously, it was jenkins ###
 USER root
 
+### Set commands to be non-interactive ###
+ENV DEBIAN_FRONTEND="noninteractive"
+
 ### Retrieve new lists of packages and update OS ###
 RUN apt-get update -y \
     && apt-get upgrade -y
@@ -41,11 +44,14 @@ RUN curl -sL https://deb.nodesource.com/setup_7.x | bash -
 RUN apt-get install nodejs
 
 ### Install MariaDB (a fork of MySQL) (non-interactive) ###
-ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt-get install -y debconf-utils
 RUN ["/bin/bash", "-c", "echo \"mariadb-server-10.0 mysql-server/root_password password ${mysql_root_password}\" | debconf-set-selections"]
 RUN ["/bin/bash", "-c", "echo \"mariadb-server-10.0 mysql-server/root_password_again password ${mysql_root_password}\" | debconf-set-selections"]
 RUN apt-get install -y mariadb-server-10.0
+
+### Install Supervisor ####
+RUN apt-get install -y supervisor
+COPY supervisor.conf /etc/supervisor/conf.d/supervisor.conf
 
 ### Export port for main web interface ###
 EXPOSE 8080
@@ -53,5 +59,5 @@ EXPOSE 8080
 ### Expose port for slave agents ###
 EXPOSE 50000
 
-### Start MySQL service and have something run in the foreground to prevent the container from stopping ###
-ENTRYPOINT ["/bin/sh", "-c", "service mysql start &> /dev/null && /usr/local/bin/jenkins.sh && tail -f /dev/null"]
+### Start Supervisor daemon ###
+ENTRYPOINT ["/bin/bash", "-c", "supervisord -n"]
