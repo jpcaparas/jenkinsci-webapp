@@ -5,6 +5,9 @@ LABEL maintainer "jp@jpcaparas.com"
 ### Set default user ###
 ARG user=jenkins
 
+### Set MySQL defaults ###
+ARG mysql_root_password=root
+
 ### Run as ROOT while we install packages ###
 USER root
 
@@ -15,12 +18,12 @@ RUN apt-get -y update
 RUN apt-get install -y software-properties-common
 
 ### Change sources where we get packages from ###
-RUN echo "deb http://mirrors.linode.com/debian/ jessie main contrib non-free" > /etc/apt/sources.list
-RUN echo "deb-src http://mirrors.linode.com/debian/ jessie main contrib non-free" >> /etc/apt/sources.list
-RUN echo "deb http://security.debian.org/ jessie/updates main contrib non-free" >> /etc/apt/sources.list
-RUN echo "deb-src http://security.debian.org/ jessie/updates main non-free" >> /etc/apt/sources.list
-RUN echo "deb http://mirrors.linode.com/debian/ jessie-updates main contrib non-free" >> /etc/apt/sources.list
-RUN echo "deb-src http://mirrors.linode.com/debian/ jessie-updates main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb http://mirrors.linode.com/debian/ jessie main contrib non-free" > /etc/apt/sources.list \
+    && echo "deb-src http://mirrors.linode.com/debian/ jessie main contrib non-free" >> /etc/apt/sources.list \
+    && echo "deb http://security.debian.org/ jessie/updates main contrib non-free" >> /etc/apt/sources.list \
+    && echo "deb-src http://security.debian.org/ jessie/updates main non-free" >> /etc/apt/sources.list \
+    && echo "deb http://mirrors.linode.com/debian/ jessie-updates main contrib non-free" >> /etc/apt/sources.list \
+    && echo "deb-src http://mirrors.linode.com/debian/ jessie-updates main contrib non-free" >> /etc/apt/sources.list
 
 ### Retrieve new lists of packages ###
 RUN apt-get update
@@ -35,6 +38,13 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN apt-get install curl python-software-properties
 RUN curl -sL https://deb.nodesource.com/setup_7.x | bash -
 RUN apt-get install nodejs
+
+### Install MySQL (non-interactive) ###
+RUN export DEBIAN_FRONTEND=noninteractive \
+    && debconf-set-selections <<< "mysql-server mysql-server/root_password password ${mysql_root_password}" \
+    && debconf-set-selections <<< "mysql-server mysql-server/root_password_again ${mysql_root_password}" \ 
+    && apt-get -y install mysql-server \
+    && service mysql start
 
 USER ${user}
 
