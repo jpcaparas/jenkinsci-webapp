@@ -2,7 +2,10 @@ FROM jenkinsci/jenkins:lts
 
 LABEL maintainer "jp@jpcaparas.com"
 
-### Switch back to ROOT user ###
+### Set default user ###
+ARG user=jenkins
+
+### Run as ROOT while we install packages ###
 USER root
 
 ### Retrieve new lists of packages ###
@@ -12,7 +15,6 @@ RUN apt-get -y update
 RUN apt-get install -y software-properties-common
 
 ### Change sources where we get packages from ###
-
 RUN echo "deb http://mirrors.linode.com/debian/ jessie main contrib non-free" > /etc/apt/sources.list
 RUN echo "deb-src http://mirrors.linode.com/debian/ jessie main contrib non-free" >> /etc/apt/sources.list
 RUN echo "deb http://security.debian.org/ jessie/updates main contrib non-free" >> /etc/apt/sources.list
