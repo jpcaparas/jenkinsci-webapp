@@ -3,10 +3,24 @@
 ![Jenkins logo](http://i.imgur.com/CxLJ8ra.png)
 
 ## Overview
-A Docker image that contains essential libraries for testing web applications on a shell:  
+Before anything else, what is [Jenkins](https://jenkins.io/)? Here's a good answer from a [Quora question asking when and why it's used](https://www.quora.com/What-is-Jenkins-When-and-why-is-it-used):
+
+> Jenkins is a Continuous Integration server.
+
+> Basically Continuous Integration is the practice of running your tests on a non-developer machine automatically everytime someone pushes new code into the source repository.
+
+> This has the tremendous advantage of always knowing if all tests work and getting fast feedback. The fast feedback is important so you always know right after you broke the build (introduced changes that made either the compile/build cycle or the tests fail) what you did that failed and how to revert it.
+
+This is a Docker build that contains essential libraries for testing & building web applications on the Jenkins project configuration dialog:
+
 - PHP 5.6
+- Composer
 - MariaDB 10
 - node.js 7
+
+These packages can be then be invoked as build steps using their respective binaries:
+
+![Build steps](http://i.imgur.com/NESEqc5l.png)
 
 ## System requirements
 1. Docker running on your machine.
@@ -23,3 +37,4 @@ A Docker image that contains essential libraries for testing web applications on
 
 ## Resources
 1. This build is based off of the [Official Jenkins Docker build](https://github.com/jenkinsci/docker).
+1. The [official reference](https://docs.docker.com/engine/reference/run/) for the `docker run` command has plenty of options.
