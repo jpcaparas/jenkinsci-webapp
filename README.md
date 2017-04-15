@@ -38,3 +38,7 @@ These packages can be then be invoked as build steps using their respective bina
 ## Resources
 1. This build is based off of the [Official Jenkins Docker build](https://github.com/jenkinsci/docker).
 1. The [official reference](https://docs.docker.com/engine/reference/run/) for the `docker run` command has plenty of options.
+
+## TODO
+- [ ] Caddy reverse proxy
+- [ ] Caddy SSL (LetsEncrypt)
